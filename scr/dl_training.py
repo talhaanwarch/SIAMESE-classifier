@@ -20,7 +20,7 @@ device='cuda' if torch.cuda.is_available() else 'cpu'
 
 #load data
 from torchvision.datasets import ImageFolder
-dataset=ImageFolder(root="../Wrist Fracture/train")
+dataset=ImageFolder(root="../dataset/train")
 
 #calculate mean and std of data
 # dataset.imgs
@@ -81,11 +81,7 @@ def train_dl(epochs,model,device,criterion,opt):
     return model
     #print('model training completed')
 
-#save model
-#torch.save(model, '../model_weights/squeezeNetV2.pth')
-#model=train_dl(50,model,device)
 
-#for test purpose only
 
 
 
