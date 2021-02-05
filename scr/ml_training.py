@@ -119,7 +119,7 @@ def dtree_param_selection(X,y,pca=None):
 
 
 def knn_param_selection(X, y,pca=None):
-    n_neighbors  =list(range(-50,50,2))
+    n_neighbors  =list(range(1,10))
     weights  = ['uniform','distance']
     metric=['minkowski','manhattan','euclidean']
     param_grid = {'kneighborsclassifier__n_neighbors': n_neighbors, 'kneighborsclassifier__weights' : weights,'kneighborsclassifier__metric':metric}
