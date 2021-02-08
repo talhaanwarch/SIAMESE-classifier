@@ -195,7 +195,10 @@ class MobileNetV2(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
+  
     
+def mobilenet():
+    return MobileNetV2()
 # import torch    
 # x = torch.randn((1, 1, 224, 224))
 # net = MobileNetV2()

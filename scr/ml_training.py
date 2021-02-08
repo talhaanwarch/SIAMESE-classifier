@@ -16,7 +16,7 @@ from PIL import Image
 #augmentation data
 from dl_training import augmentation
 aug=augmentation()
-def get_features(directory,model):
+def get_features(df,model):
     """
     
 
@@ -33,16 +33,16 @@ def get_features(directory,model):
         DESCRIPTION.
 
     """
-    feature=[]
-    for path in glob(directory+'/*.jpg'):
-        img = Image.open(path).convert("L")#convert to gray scale
+    feature,label=[],[]
+    for path in df:
+        img = Image.open(path[0]).convert("L")#convert to gray scale
         img=aug(img)#augmented
         img=img.unsqueeze(0) #add another dimension at 0
         emb=model(img.to(device))
         emb=emb.cpu().detach().numpy().ravel()
         feature.append(emb)
-    return feature
-
+        label.append(path[1])
+    return np.array(feature),np.array(label)
     
 
 
@@ -66,7 +66,8 @@ from sklearn.ensemble import  VotingClassifier,StackingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
-
+from sklearn.model_selection import cross_validate
+import pandas as pd
 
 #svm
 def svc_param_selection(X, y,pca=None):
@@ -80,7 +81,7 @@ def svc_param_selection(X, y,pca=None):
         grid_search = GridSearchCV(make_pipeline(StandardScaler(),SVC(kernel='rbf')), param_grid, cv=5,
                                n_jobs=-1,scoring='f1_macro')
     grid_search.fit(X, y)
-    return grid_search.best_params_,grid_search.best_score_
+    return grid_search.best_estimator_ ,grid_search.best_score_
 
 
 
@@ -89,12 +90,12 @@ def logistic_param_selection(X, y,pca=None):
     C= [0.0001,0.005,0.001,0.05,0.01,0.5,0.1, 1,3,5,8, 10,12,15]
     param_grid = {'logisticregression__C': C}
     if pca:
-        grid_search = GridSearchCV(make_pipeline(StandardScaler(),pca,LogisticRegression()), param_grid,scoring='f1_macro', cv=5,n_jobs=-1)
+        grid_search = GridSearchCV(make_pipeline(StandardScaler(),pca,LogisticRegression(max_iter=500)), param_grid,scoring='f1_macro', cv=5,n_jobs=-1)
     else:
-        grid_search = GridSearchCV(make_pipeline(StandardScaler(),LogisticRegression()), param_grid,scoring='f1_macro', cv=5,n_jobs=-1)
+        grid_search = GridSearchCV(make_pipeline(StandardScaler(),LogisticRegression(max_iter=500)), param_grid,scoring='f1_macro', cv=5,n_jobs=-1)
     grid_search.fit(X, y)
     grid_search.best_params_
-    return grid_search.best_params_,grid_search.best_score_
+    return grid_search.best_estimator_ ,grid_search.best_score_
 
 
 
@@ -115,7 +116,9 @@ def dtree_param_selection(X,y,pca=None):
     #fit model to data
     grid_search.fit(X, y)
     #print(dtree_gscv.best_score_)
-    return grid_search.best_params_,grid_search.best_score_
+    return grid_search.best_estimator_ ,grid_search.best_score_
+
+
 
 
 def knn_param_selection(X, y,pca=None):
@@ -129,59 +132,135 @@ def knn_param_selection(X, y,pca=None):
         grid_search =GridSearchCV(make_pipeline(StandardScaler(), KNeighborsClassifier()), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
     grid_search.fit(X, y)
     grid_search.best_params_
+    return grid_search.best_estimator_ ,grid_search.best_score_
+
+#from catboost import CatBoostClassifier
+def cat_param_selection(X,y,pca=None):
+    #create a dictionary of all values we want to test
+    param_grid = { 'catboostclassifier__depth':list(np.arange(2,10,2)),
+                  'catboostclassifier__l2_leaf_reg':list(np.logspace(-20, -19, 3)),
+                  'catboostclassifier__learning_rate': [0.1,0.001,0.05],
+                  }
+    # decision tree model
+    cat_model=CatBoostClassifier(task_type="GPU", loss_function='MultiClass')
+    #use gridsearch to test all values
+    if pca:
+        grid_search = GridSearchCV(make_pipeline(StandardScaler(),pca,cat_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
+    else:
+        grid_search = GridSearchCV(make_pipeline(StandardScaler(),cat_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
+    #fit model to data
+    grid_search.fit(X, y)
+    #print(dtree_gscv.best_score_)
+    return grid_search.best_params_,grid_search.best_score_
+
+#import lightgbm as lgb
+def lgbm_param_selection(X,y,pca=None):
+    #create a dictionary of all values we want to test
+    param_grid = { 
+                    'lgbmclassifier__n_estimators':list(np.arange(50,500,50)),
+                  'lgbmclassifier__boosting_type':['gbdt', 'dart'],
+                  'lgbmclassifier__learning_rate': [0.1,0.001,0.05],
+                  'lgbmclassifier__random_state':np.arange(0,30,10)
+                  
+                  }
+    # decision tree model
+    lgbm_model=lgb.LGBMClassifier(objective='binary')
+    #use gridsearch to test all values
+    if pca:
+        grid_search = GridSearchCV(make_pipeline(StandardScaler(),pca,lgbm_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
+    else:
+        grid_search = GridSearchCV(make_pipeline(StandardScaler(),lgbm_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
+    #fit model to data
+    grid_search.fit(X, y)
+    #print(dtree_gscv.best_score_)
+    return grid_search.best_params_,grid_search.best_score_
+
+#lgbm_param_selection(feature,label)
+
+#import xgboost
+def xgb_param_selection(X,y,pca=None):
+    #create a dictionary of all values we want to test
+    param_grid = { 
+                    'xgbclassifier__n_estimators':list(np.arange(10,500,50)),
+                  'xgbclassifier__boosting_type':['dart'],
+                  'xgbclassifier__learning_rate': [0.1,0.001,0.05],
+                  'xgbclassifier__max_depth':np.arange(1,30,5),
+                  'xgbclassifier__random_state ':np.arange(0,30,10),
+                  
+                  }
+    # decision tree model
+    xgb_model=xgboost.XGBClassifier(objective='binary:logistic')
+    #use gridsearch to test all values
+    if pca:
+        grid_search = GridSearchCV(make_pipeline(StandardScaler(),pca,xgb_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
+    else:
+        grid_search = GridSearchCV(make_pipeline(StandardScaler(),xgb_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
+    #fit model to data
+    grid_search.fit(X, y)
+    #print(dtree_gscv.best_score_)
     return grid_search.best_params_,grid_search.best_score_
 
 
 
-
-def classifiers_tuning(option,feature,label):
+def classifiers_tuning(option,feature,label,skip_tuning=False):
     """
     
 
     Parameters
     ----------
     option : str
-        select for which machine learning classifier , grid search should be performed
-        available options are 'svm','lr','dt','knn'
-    feature : 2-d array
-        pass feature array
-    label : 1-d array
-        label array
+        Select the machine learning classifier
+        Options : svm, dt, lr, knn
+    feature : array
+        embeddings obtained from deep learning network
+    label : array
+        class labels
+    skip_tuning : bool, optional
+        DESCRIPTION. The default is False.
+        It is used to skip the grid search in each fold. Setting False
+        will improve performance but increase computational time
 
     Returns
     -------
-    clf
-        tuned classifier.
-    f1-score
-        f1-score obtained with grid search.
+    clf : Classifier
+        DESCRIPTION.
+    TYPE
+        DESCRIPTION.
 
     """
-    if option=='svm':
-        svm_param,svm_f1=svc_param_selection(feature,label)
-        svm=SVC(C=svm_param['svc__C'],gamma=svm_param['svc__gamma'],probability=True)
-        return svm,svm_f1
-    elif option=='lr':
-        lr_param,lr_f1=logistic_param_selection(feature,label)
-        lr=LogisticRegression(C=lr_param['logisticregression__C'])
-        return lr,lr_f1
-    elif option=='knn':
-        knn_param,knn_f1=knn_param_selection(feature,label)
-        knn=KNeighborsClassifier(metric=knn_param['kneighborsclassifier__metric'],
-                                 n_neighbors=knn_param['kneighborsclassifier__n_neighbors'],
-                                 weights=knn_param['kneighborsclassifier__weights'])
-        return knn,knn_f1
-    elif option=='dt':
-        dt_param,dt_f1=dtree_param_selection(feature,label)
-
-        dt=DecisionTreeClassifier(criterion=dt_param['decisiontreeclassifier__criterion'],
-                               max_depth=dt_param['decisiontreeclassifier__max_depth'],
-                               max_features=dt_param['decisiontreeclassifier__max_features'],
-                               random_state=dt_param['decisiontreeclassifier__random_state'])
-        return dt,dt_f1
     
+    
+    if skip_tuning==False:
+        if option=='svm':
+            clf,f1=svc_param_selection(feature,label)
+            return clf,f1
+            
+        elif option=='lr':
+            clf,f1=logistic_param_selection(feature,label)
+            return clf,f1
+        elif option=='knn':
+            clf,f1=knn_param_selection(feature,label)
+            return clf,f1
+        elif option=='dt':
+            clf,f1=dtree_param_selection(feature,label)
+            return clf,f1
+       
+    if skip_tuning==True:
+        if option=='svm':
+            clf=make_pipeline(StandardScaler(),SVC(kernel='rbf'))
+            return clf,'Skip tuning'
+            
+        elif option=='lr':
+            clf=make_pipeline(StandardScaler(),LogisticRegression(max_iter=500))
+            return clf,'Skip tuning'
+        elif option=='knn':
+            clf=make_pipeline(StandardScaler(),KNeighborsClassifier())
+            return clf,'Skip tuning'
+        elif option=='dt':
+            clf=make_pipeline(StandardScaler(),DecisionTreeClassifier())
+            return clf,'Skip tuning'
 
-from sklearn.model_selection import cross_validate
-import pandas as pd
+
 
 def display_result(clf,feature,label,pca=None):
     """
@@ -207,35 +286,14 @@ def display_result(clf,feature,label,pca=None):
 
     """
     if pca:
-        result=cross_validate(estimator=make_pipeline(StandardScaler(),pca,clf), X=feature,y=label, 
+        result=cross_validate(estimator=clf, X=feature,y=label, 
                        cv=5,scoring=['accuracy','precision_macro', 'recall_macro', 'f1_macro'],return_train_score=True)
     else:
-        result=cross_validate(estimator=make_pipeline(StandardScaler(),clf), X=feature,y=label, 
+        result=cross_validate(estimator=clf, X=feature,y=label, 
                        cv=5,scoring=['accuracy','precision_macro', 'recall_macro', 'f1_macro'],return_train_score=True)
     result=pd.DataFrame.from_dict(result).T
     #print(result.mean(axis=1))
     return result.mean(axis=1)
-
-
-# fracture=get_features('../Wrist Fracture/Fracture',model)
-# normal= get_features('../Wrist Fracture/Normal',model)
-
-# feature=np.array(fracture+normal)
-# label=np.array([0]*len(normal)+[1]*len(fracture))
-
-# classifiers('svm',feature,label)
-
-#pca=PCA(5)    
-#print_results
-# dt_result=display_result(dt)
-# svm_result=display_result(svm)
-# lr_result=display_result(lr)
-# knn_result=display_result(knn)
-
-# df=pd.DataFrame(zip(dt_result,svm_result,lr_result,knn_result),index=dt_result.index,columns=['dt','svm','lr','knn'])
-
-# df.to_clipboard()
-
 
 
 

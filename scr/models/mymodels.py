@@ -129,10 +129,10 @@ class SqueezeNetV3(torch.nn.Module):
         return self.net(x)
 
 
-class SqueezeNetV4(torch.nn.Module):
+class MyModelV3(torch.nn.Module):
     
     def __init__(self):
-        super(SqueezeNetV4, self).__init__()
+        super(MyModelV3, self).__init__()
         self.net = torch.nn.Sequential(
                  nn.Conv2d(in_channels=1,out_channels=32,kernel_size=3,stride=2),
                  SoftPool2D(kernel_size=3,stride=2),
@@ -150,6 +150,7 @@ class SqueezeNetV4(torch.nn.Module):
                  Fire(320, 48, 160),
                  #nn.BatchNorm2d(320),
                  nn.Conv2d(in_channels=320,out_channels=128*2,kernel_size=1,stride=2),
+                 nn.ReLU(),
                  nn.Conv2d(in_channels=128*2,out_channels=32,kernel_size=1,stride=1),
                  nn.ReLU(),
                  nn.Conv2d(in_channels=32,out_channels=16,kernel_size=1,stride=1),
@@ -164,4 +165,9 @@ class SqueezeNetV4(torch.nn.Module):
     def forward(self, x):
         return self.net(x)
 
+def mymodel():
+    return MyModelV3()
+
+def mymodel1():
+    return SqueezeNetV3()
 
