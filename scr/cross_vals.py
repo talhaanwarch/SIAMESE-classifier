@@ -46,7 +46,7 @@ def report_summary(clf_report):
     accs.loc['mean']=accs.astype('float').mean()
     return report_list,accs
 
-def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,skip_tuning=False):
+def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,batchsize=8,skip_tuning=False):
     
     kf = KFold(n_splits)
     fold=0
@@ -59,7 +59,7 @@ def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,skip_tuning=False):
         train=data.iloc[train_index,:].values
         test=data.iloc[test_index,:].values
         #load images
-        train_loader=load_data(train)
+        train_loader=load_data(train,batchsize)
 
         #train on all train images
         model=train_dl(train_loader,epochs,model,"cuda",criterion,opt)

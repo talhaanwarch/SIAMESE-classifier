@@ -41,14 +41,14 @@ def augmentation():
         #transforms.RandomVerticalFlip(1),
         
         transforms.ToTensor(),
-        #transforms.RandomErasing(p=0.3), #working
+        #transforms.RandomErasing(p=0.5), #working
         transforms.Normalize((0.2, ), (0.2, )),
                           ])
     return aug
 
 
 
-def load_data(df):
+def load_data(df,batchsize=8):
     #call data loader
     from dataloader import SiameseNetworkDataset
     data =SiameseNetworkDataset(df,image_D='2D',transform=augmentation())
@@ -56,7 +56,7 @@ def load_data(df):
     
     #load images
     from torch.utils.data.dataloader import DataLoader
-    loader = DataLoader(data,shuffle=True,num_workers=0,batch_size=8)
+    loader = DataLoader(data,shuffle=True,num_workers=0,batch_size=batchsize)
     return loader
 
 
