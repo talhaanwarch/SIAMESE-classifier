@@ -16,6 +16,12 @@ from functools import reduce
 import numpy as np
 import gc
 import numpy as np
+
+def weight_reset(m):
+    """Reset model weights"""
+    if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+        m.reset_parameters()
+
 def report_summary(clf_report):
     report_list={'Decision Tree':[],'SVM':[],"logistic regression":[],'K Nearest neighbors':[]}
     acc_clf=[] #accuracies of all classifier
@@ -66,7 +72,8 @@ def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,batchsize=8,skip_tuning=Fa
         train_features,train_labels=get_features(train,model)
          #now get embeddings of test data
         test_features,test_labels=get_features(test,model)
-
+        #reset the model
+        model.apply(weight_reset)
         #hyper parameter tuning of train data
         dt_clf,_=classifiers_tuning('dt',train_features,train_labels,skip_tuning=skip_tuning)
         svm_clf,_=classifiers_tuning('svm',train_features,train_labels,skip_tuning=skip_tuning)
