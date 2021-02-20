@@ -36,26 +36,34 @@ device='cuda' if torch.cuda.is_available() else 'cpu'
 from torchvision import transforms
 def augmentation():
     aug=transforms.Compose([
-        transforms.Resize(size=(224,224)),
-        #transforms.RandomHorizontalFlip(1),
-        #transforms.RandomVerticalFlip(1),
-        
+        transforms.Resize(size=(248,248)),
+        transforms.RandomHorizontalFlip(1),
+        transforms.RandomVerticalFlip(1),
+        #transforms.CenterCrop(224),
         transforms.ToTensor(),
         #transforms.RandomErasing(p=0.5), #working
         transforms.Normalize((0.2, ), (0.2, )),
                           ])
     return aug
 
+def no_augmentation():
+    aug=transforms.Compose([
+        transforms.Resize(size=(224,224)),
+        transforms.ToTensor(),
+        transforms.Normalize((0.2, ), (0.2, )),
+                          ])
+    return aug
 
+from torch.utils.data.dataloader import DataLoader
+from dataloader import SiameseNetworkDataset
 
-def load_data(df,batchsize=8):
+def load_data(df,batchsize=8,aug=True):
     #call data loader
-    from dataloader import SiameseNetworkDataset
-    data =SiameseNetworkDataset(df,image_D='2D',transform=augmentation())
-    
-    
+    if aug==True:
+        data =SiameseNetworkDataset(df,image_D='2D',transform=augmentation())
+    else:
+        data =SiameseNetworkDataset(df,image_D='2D',transform=no_augmentation())
     #load images
-    from torch.utils.data.dataloader import DataLoader
     loader = DataLoader(data,shuffle=True,num_workers=0,batch_size=batchsize)
     return loader
 

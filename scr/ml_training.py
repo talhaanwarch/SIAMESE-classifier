@@ -72,7 +72,7 @@ import pandas as pd
 #svm
 def svc_param_selection(X, y,pca=None):
     Cs = [ 0.0001,0.05,0.1,0.5, 1, 10,15,20,25,30,50,70,100]
-    gammas = [0.0001,0.005,0.001, 0.01, 0.1,0.3,0.5, 1]
+    gammas = [0.0001,0.005,0.001, 0.01, 0.1,0.3,0.5, 1,1.5,2,5.10]
     param_grid = {'svc__C': Cs, 'svc__gamma' : gammas}
     if pca:
         grid_search = GridSearchCV(make_pipeline(StandardScaler(),pca,SVC(kernel='rbf')), param_grid, cv=5,

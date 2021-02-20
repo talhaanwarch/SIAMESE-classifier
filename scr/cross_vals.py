@@ -52,7 +52,7 @@ def report_summary(clf_report):
     accs.loc['mean']=accs.astype('float').mean()
     return report_list,accs
 
-def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,batchsize=8,skip_tuning=False):
+def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,batchsize=8,skip_tuning=False,aug=True):
     
     kf = KFold(n_splits)
     fold=0
@@ -60,12 +60,12 @@ def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,batchsize=8,skip_tuning=Fa
     clf_report={'Decision Tree':[],'SVM':[],"logistic regression":[],'K Nearest neighbors':[]}
 
     for train_index, test_index in kf.split(data.img):
-        opt=torch.optim.Adam(params=model.parameters(),lr=lr)
+        opt=torch.optim.AdamW(params=model.parameters(),lr=lr)
         
         train=data.iloc[train_index,:].values
         test=data.iloc[test_index,:].values
         #load images
-        train_loader=load_data(train,batchsize)
+        train_loader=load_data(train,batchsize,aug=aug)
 
         #train on all train images
         model=train_dl(train_loader,epochs,model,"cuda",criterion,opt)
