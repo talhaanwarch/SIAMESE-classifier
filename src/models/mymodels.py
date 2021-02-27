@@ -3,8 +3,7 @@
 
 Softpool layer is taken from 
 # https://github.com/qwopqwop200/SoftPool/blob/main/tensorflow_softpool.py#L14-#L22
-Squeezenet model is taken from orignal paper repo
-https://github.com/forresti/SqueezeNet/tree/master/SqueezeNet_v1.1
+
 """
 
 import torch

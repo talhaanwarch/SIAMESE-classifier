@@ -43,9 +43,12 @@ class SiameseNetworkDataset():
             img0=img0.convert("L")
             img1=img1.convert("L")
         #print(img0.dtype)
-        if self.transform:
-           img0=self.transform(img0) 
-           img1=self.transform(img1) 
+        if (self.transform[0]==1) or (self.transform[0]==0):
+           img0=self.transform[1](img0) 
+           img1=self.transform[1](img1) 
+        elif self.transform[0]==2:
+            img0 = self.transform[1](image=np.array(img0))['image']   
+            img1 = self.transform[1](image=np.array(img1))['image']  
 
         
         return img0, img1 ,label

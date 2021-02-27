@@ -53,7 +53,7 @@ def report_summary(clf_report):
     accs.loc['mean']=accs.astype('float').mean()
     return report_list,accs
 
-def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,batchsize=8,skip_tuning=False,aug=True):
+def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,batchsize=8,skip_tuning=False,aug=1):
     
     kf = KFold(n_splits)
     fold=0
