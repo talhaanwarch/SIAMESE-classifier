@@ -32,12 +32,13 @@ def report_summary(clf_report):
         for i in range(5):
             splited = [' '.join(x.split()) for x in clf_report[j][i].split('\n\n')]
             header = [x for x in splited[0].split(' ')]
+            
             data = np.array(splited[1].split(' ')).reshape(-1, len(header) + 1)
             data = np.delete(data, 0, 1).astype(float)[:,0:-1]
             acc=splited[2].split(' ')[1:2]
             macro=np.array(splited[2].split(' ')[5:8])
             weight=np.array(splited[2].split(' ')[-4:-1])
-            index=['Fracture','Normal','macro','weighted']
+            index=['Class 0','Class 1','macro','weighted']
             df = pd.DataFrame(np.concatenate((data, np.expand_dims(macro,0),np.expand_dims(weight,0))), columns=header[0:-1],index=index)
             report.append(df)
             acc_report.append(acc)
