@@ -16,7 +16,7 @@ from PIL import Image
 #augmentation data
 from dl_training import augmentation
 aug=augmentation()
-def get_features(df,model):
+def get_features(df,model,dim='2D'):
     """
     
 
@@ -35,7 +35,9 @@ def get_features(df,model):
     """
     feature,label=[],[]
     for path in df:
-        img = Image.open(path[0]).convert("L")#convert to gray scale
+        img = Image.open(path[0])
+        if dim=='2D':
+            img=img.convert("L")#convert to gray scale
         img=aug(img)#augmented
         img=img.unsqueeze(0) #add another dimension at 0
         emb=model(img.to(device))

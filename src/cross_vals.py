@@ -53,8 +53,7 @@ def report_summary(clf_report):
     accs.loc['mean']=accs.astype('float').mean()
     return report_list,accs
 
-def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,batchsize=8,skip_tuning=False,aug=1):
-    
+def kfoldcv(model,data,epochs=50,dim='2D',n_splits=5,lr=0.0001,batchsize=8,skip_tuning=False,aug=1):
     kf = KFold(n_splits)
     fold=0
     train_cv=[]
@@ -66,13 +65,13 @@ def kfoldcv(model,data,epochs=50,n_splits=5,lr=0.0001,batchsize=8,skip_tuning=Fa
         train=data.iloc[train_index,:].values
         test=data.iloc[test_index,:].values
         #load images
-        train_loader=load_data(train,batchsize,aug=aug)
+        train_loader=load_data(train,batchsize,aug=aug,image_D=dim)
 
         #train on all train images
         model=train_dl(train_loader,epochs,model,"cuda",criterion,opt)
-        train_features,train_labels=get_features(train,model)
+        train_features,train_labels=get_features(train,model,dim)
          #now get embeddings of test data
-        test_features,test_labels=get_features(test,model)
+        test_features,test_labels=get_features(test,model,dim)
         #reset the model
         model.apply(weight_reset)
         #hyper parameter tuning of train data
