@@ -53,12 +53,11 @@ def report_summary(clf_report):
     accs.loc['mean']=accs.astype('float').mean()
     return report_list,accs
 
-def kfoldcv(model,data,epochs=50,dim='2D',n_splits=5,lr=0.0001,batchsize=8,skip_tuning=False,aug=1):
+def kfoldcv(model,data,epochs=50,dim='2D',n_splits=5,lr=0.0001,batchsize=8,pca=False,skip_tuning=False,aug=1):
     kf = KFold(n_splits)
     fold=0
     train_cv=[]
     clf_report={'Decision Tree':[],'SVM':[],"logistic regression":[],'K Nearest neighbors':[]}
-
     for train_index, test_index in kf.split(data.img):
         opt=torch.optim.AdamW(params=model.parameters(),lr=lr)
         
@@ -75,10 +74,10 @@ def kfoldcv(model,data,epochs=50,dim='2D',n_splits=5,lr=0.0001,batchsize=8,skip_
         #reset the model
         model.apply(weight_reset)
         #hyper parameter tuning of train data
-        dt_clf,_=classifiers_tuning('dt',train_features,train_labels,skip_tuning=skip_tuning)
-        svm_clf,_=classifiers_tuning('svm',train_features,train_labels,skip_tuning=skip_tuning)
-        knn_clf,_=classifiers_tuning('knn',train_features,train_labels,skip_tuning=skip_tuning)
-        lr_clf,_=classifiers_tuning('lr',train_features,train_labels,skip_tuning=skip_tuning)
+        dt_clf,_=classifiers_tuning('dt',train_features,train_labels,skip_tuning=skip_tuning,pca=pca)
+        svm_clf,_=classifiers_tuning('svm',train_features,train_labels,skip_tuning=skip_tuning,pca=pca)
+        knn_clf,_=classifiers_tuning('knn',train_features,train_labels,skip_tuning=skip_tuning,pca=pca)
+        lr_clf,_=classifiers_tuning('lr',train_features,train_labels,skip_tuning=skip_tuning,pca=pca)
 
         #append result of best tuned 5cv 
         if skip_tuning==False:
