@@ -209,7 +209,7 @@ class MyModelV4(torch.nn.Module):
                  #nn.Conv2d(in_channels=32,out_channels=16,kernel_size=1,stride=1),
                  nn.Flatten(),
                  #PrintShape(),
-                 nn.Linear(784, 512),
+                 nn.Linear(784, 128),
                  # nn.Linear(512*2, 512)              
                
                 )        

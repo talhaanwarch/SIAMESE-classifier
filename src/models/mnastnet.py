@@ -138,7 +138,7 @@ class MNASNet(torch.nn.Module):
         ]
         self.layers = nn.Sequential(*layers)
         self.classifier = nn.Sequential(nn.Dropout(p=dropout, inplace=True),
-                                        nn.Linear(1280, 512))
+                                        nn.Linear(1280, 128))
         self._initialize_weights()
 
     def forward(self, x: Tensor) -> Tensor:
