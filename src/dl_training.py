@@ -37,6 +37,7 @@ from albumentations import *
 from albumentations.pytorch import ToTensorV2
 
 def augmentation1():
+    """albumentations image augmentation"""
     return Compose([
             RandomResizedCrop(248, 248),
             #Transpose(p=0.5),
@@ -62,10 +63,10 @@ def augmentation():
         transforms.RandomHorizontalFlip(1),
         transforms.RandomVerticalFlip(1),
         #transforms.RandomPerspective(distortion_scale=0.1), 
-        #transforms.CenterCrop(224),
+        transforms.CenterCrop(248),
         transforms.ToTensor(),
         #transforms.RandomErasing(p=0.5), #working
-        transforms.Normalize((0.5, ), (0.5, )),
+        transforms.Normalize((0.2, ), (0.2, )),
                           ])
     return aug
 
