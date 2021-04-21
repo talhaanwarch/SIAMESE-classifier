@@ -200,16 +200,18 @@ class MyModelV4(torch.nn.Module):
                  #nn.BatchNorm2d(256),
                  Fire1(256, 48, 160),
                  Fire1(320, 48, 160),
+                 nn.MaxPool2d(kernel_size=3,stride=2),
                  #nn.BatchNorm2d(320),
                  nn.Conv2d(in_channels=320,out_channels=128*2,kernel_size=1,stride=2),
                  nn.LeakyReLU(),
                  nn.Conv2d(in_channels=128*2,out_channels=32,kernel_size=1,stride=1),
                  nn.LeakyReLU(),
                  nn.Conv2d(in_channels=32,out_channels=16,kernel_size=1,stride=1),
+                 nn.LeakyReLU(),
                  #nn.Conv2d(in_channels=32,out_channels=16,kernel_size=1,stride=1),
                  nn.Flatten(),
                  #PrintShape(),
-                 nn.Linear(784, 128),
+                 nn.Linear(144, 128),
                  # nn.Linear(512*2, 512)              
                
                 )        

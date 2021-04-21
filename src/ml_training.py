@@ -206,7 +206,21 @@ def xgb_param_selection(X,y,pca=None):
     grid_search.fit(X, y)
     #print(dtree_gscv.best_score_)
     return grid_search.best_params_,grid_search.best_score_
-
+    
+from autogluon.tabular import TabularPredictor
+def automl_algo(X,y,train=True):
+   
+    data=pd.concat([pd.DataFrame(X),pd.DataFrame(y)],axis=1)
+    data.columns=['data_{}'.format(i) for i in range(X.shape[1])]+['Label']
+#     data.to_csv('test.csv',index=False)
+    save_path = 'agModels-predictClass' 
+    if train:
+        predictor=TabularPredictor(label='Label',path=save_path,verbosity=0).fit(data, time_limit=120)
+    else:
+        predictor = TabularPredictor.load(save_path) 
+        leaderboard = predictor.leaderboard(data,silent=True)
+        test_pred = predictor.predict(data,model=leaderboard.model[0])
+        return test_pred
 
 
 def classifiers_tuning(option,feature,label,pca=False,skip_tuning=False):
@@ -251,6 +265,7 @@ def classifiers_tuning(option,feature,label,pca=False,skip_tuning=False):
         elif option=='dt':
             clf,f1=dtree_param_selection(feature,label,pca)
             return clf,f1
+
        
     if skip_tuning==True:
         if option=='svm':
@@ -276,8 +291,7 @@ def display_result(clf,feature,label,pca=None):
     Parameters
     ----------
     clf :sklearn classifier
-        pass an sk learn classifier
-        
+        pass an sk learn classifier 
     feature : 2-d array
         pass feature set.
     label : 1-d array
@@ -292,6 +306,7 @@ def display_result(clf,feature,label,pca=None):
         average train and test metrics.
 
     """
+        
     if pca:
         result=cross_validate(estimator=clf, X=feature,y=label, 
                        cv=5,scoring=['accuracy','precision_macro', 'recall_macro', 'f1_macro'],return_train_score=True)

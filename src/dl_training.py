@@ -11,6 +11,7 @@ import torchvision
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
+#pip install git+https://github.com/ildoonet/pytorch-randaugment
 from RandAugment.augmentations import Lighting, RandAugment
 from glob import glob    
 
@@ -62,10 +63,8 @@ def augmentation():
         transforms.Resize(size=(248,248)),
         transforms.RandomHorizontalFlip(1),
         transforms.RandomVerticalFlip(1),
-        #transforms.RandomPerspective(distortion_scale=0.1), 
         transforms.CenterCrop(248),
         transforms.ToTensor(),
-        #transforms.RandomErasing(p=0.5), #working
         transforms.Normalize((0.2, ), (0.2, )),
                           ])
     return aug

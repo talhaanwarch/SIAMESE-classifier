@@ -19,3 +19,11 @@ kfoldcv got following parameters
 -- aug=0-> no augmentation
 -- aug=2-> albumentation augmentation
 -- aug=3-> rand augmentation
+
+# Requirements
+Install pytorch (depends upon your cuda version)    
+pip install fastai   
+pip install --pre autogluon  
+pip install albumentations   
+pip install git+https://github.com/ildoonet/pytorch-randaugment  
+

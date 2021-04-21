@@ -10,7 +10,7 @@ from sklearn.model_selection import KFold
 from ml_training import *
 from dl_training import *
 from loss import ContrastiveLoss
-
+from autogluon.tabular import TabularPredictor
 criterion=ContrastiveLoss()
 from functools import reduce
 import numpy as np
@@ -23,7 +23,7 @@ def weight_reset(m):
         m.reset_parameters()
 
 def report_summary(clf_report):
-    report_list={'Decision Tree':[],'SVM':[],"logistic regression":[],'K Nearest neighbors':[]}
+    report_list={'Decision Tree':[],'SVM':[],"logistic regression":[],'K Nearest neighbors':[],'autoML':[]}
     acc_clf=[] #accuracies of all classifier
     from functools import reduce
     for j in clf_report.keys():
@@ -49,7 +49,7 @@ def report_summary(clf_report):
         report_list[j].append(df_means)
         acc_clf.append(pd.DataFrame(acc_report))
     accs=pd.concat(acc_clf,axis=1)
-    accs.columns=['DT','SVM','LR','KNN']
+    accs.columns=['DT','SVM','LR','KNN','ML']
     accs.loc['mean']=accs.astype('float').mean()
     return report_list,accs
 
@@ -57,7 +57,7 @@ def kfoldcv(model,data,epochs=50,dim='2D',n_splits=5,lr=0.0001,batchsize=8,pca=F
     kf = KFold(n_splits)
     fold=0
     train_cv=[]
-    clf_report={'Decision Tree':[],'SVM':[],"logistic regression":[],'K Nearest neighbors':[]}
+    clf_report={'Decision Tree':[],'SVM':[],"logistic regression":[],'K Nearest neighbors':[],'autoML':[]}
     for train_index, test_index in kf.split(data.img):
         opt=torch.optim.AdamW(params=model.parameters(),lr=lr)
         
@@ -78,7 +78,7 @@ def kfoldcv(model,data,epochs=50,dim='2D',n_splits=5,lr=0.0001,batchsize=8,pca=F
         svm_clf,_=classifiers_tuning('svm',train_features,train_labels,skip_tuning=skip_tuning,pca=pca)
         knn_clf,_=classifiers_tuning('knn',train_features,train_labels,skip_tuning=skip_tuning,pca=pca)
         lr_clf,_=classifiers_tuning('lr',train_features,train_labels,skip_tuning=skip_tuning,pca=pca)
-
+        automl_algo(train_features,train_labels)
         #append result of best tuned 5cv 
         if skip_tuning==False:
             dt_result=display_result(dt_clf,train_features,train_labels)
@@ -101,6 +101,9 @@ def kfoldcv(model,data,epochs=50,dim='2D',n_splits=5,lr=0.0001,batchsize=8,pca=F
            
             test_pred=clf_model.predict(test_features)
             clf_report[clf_name].append(classification_report(test_labels,test_pred))
+        #autogloun prediction
+        test_pred=automl_algo(test_features,test_labels,train=False)
+        clf_report['autoML'].append(classification_report(test_labels,test_pred))
     del model
     gc.collect()
     return train_cv,report_summary(clf_report)
