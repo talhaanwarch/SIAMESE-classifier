@@ -104,7 +104,7 @@ class MNASNet(torch.nn.Module):
     def __init__(
         self,
         alpha: float,
-        num_classes: int = 128,
+        num_classes: int = 1000,
         dropout: float = 0.2
     ) -> None:
         super(MNASNet, self).__init__()

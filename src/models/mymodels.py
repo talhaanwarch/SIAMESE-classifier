@@ -57,40 +57,9 @@ class Fire(nn.Module):
 
 
 class MyModelV1(torch.nn.Module):
+    
     def __init__(self):
         super(MyModelV1, self).__init__()
-        self.net = torch.nn.Sequential(
-                 nn.Conv2d(in_channels=1,out_channels=32,kernel_size=3,stride=2),
-                 nn.MaxPool2d(kernel_size=3,stride=2),
-                 nn.ReLU(),
-                 nn.BatchNorm2d(32),
-                 Fire(in_channels=32, squeeze_channels=16,expand_channels=32),
-                 Fire(in_channels=64, squeeze_channels=16,expand_channels=64),
-                 nn.MaxPool2d(kernel_size=3,stride=2),
-                 #nn.BatchNorm2d(128),
-                 Fire(in_channels=128, squeeze_channels=32,expand_channels=96),
-                 Fire(in_channels=192, squeeze_channels=32,expand_channels=128),
-                 nn.MaxPool2d(kernel_size=3,stride=2),
-                 #nn.BatchNorm2d(256),
-                 Fire(256, 48, 160),
-                 Fire(320, 48, 160),
-                 #nn.BatchNorm2d(320),
-                 nn.Conv2d(in_channels=320,out_channels=384,kernel_size=3,stride=2),
-                 nn.ReLU(),
-                 nn.Conv2d(in_channels=384,out_channels=512,kernel_size=3,stride=2),
-                 nn.Flatten(),
-                 nn.Linear(512*4, 512*2),
-                 nn.Linear(512*2, 512)
-                
-               
-                )        
-    def forward(self, x):
-        return self.net(x)    
-    
-class MyModelV2(torch.nn.Module):
-    
-    def __init__(self):
-        super(MyModelV2, self).__init__()
         self.net = torch.nn.Sequential(
                  nn.Conv2d(in_channels=1,out_channels=32,kernel_size=3,stride=2),
                  nn.MaxPool2d(kernel_size=3,stride=2),
@@ -116,19 +85,18 @@ class MyModelV2(torch.nn.Module):
                  #nn.Conv2d(in_channels=32,out_channels=16,kernel_size=1,stride=1),
                  nn.Flatten(),
                  #PrintShape(),
-                 nn.Linear(784, 512),
+                 nn.Linear(784, 1000),
                  # nn.Linear(512*2, 512)
                 
                
                 )        
     def forward(self, x):
         return self.net(x)
-
-
-class MyModelV3(torch.nn.Module):
+    
+class MyModelV2(torch.nn.Module):
     
     def __init__(self):
-        super(MyModelV3, self).__init__()
+        super(MyModelV2, self).__init__()
         self.net = torch.nn.Sequential(
                  nn.Conv2d(in_channels=1,out_channels=32,kernel_size=3,stride=2),
                  nn.MaxPool2d(kernel_size=3,stride=2),
@@ -154,13 +122,16 @@ class MyModelV3(torch.nn.Module):
                  #nn.Conv2d(in_channels=32,out_channels=16,kernel_size=1,stride=1),
                  nn.Flatten(),
                  #PrintShape(),
-                 nn.Linear(784, 512),
+                 nn.Linear(784, 1000),
                  # nn.Linear(512*2, 512)
                 
                
                 )        
     def forward(self, x):
         return self.net(x)
+
+
+
 
 class Fire1(nn.Module):
    
@@ -183,6 +154,44 @@ class Fire1(nn.Module):
         x = self.relu(x)
         return x
     
+    
+class MyModelV3(torch.nn.Module):
+    
+    def __init__(self):
+        super(MyModelV3, self).__init__()
+        self.net = torch.nn.Sequential(
+                 nn.Conv2d(in_channels=1,out_channels=32,kernel_size=3,stride=2),
+                 nn.MaxPool2d(kernel_size=3,stride=2),
+                 nn.LeakyReLU(),
+                 nn.BatchNorm2d(32),
+                 Fire1(in_channels=32, squeeze_channels=16,expand_channels=32),
+                 Fire1(in_channels=64, squeeze_channels=16,expand_channels=64),
+                 nn.MaxPool2d(kernel_size=3,stride=2),
+                 #nn.BatchNorm2d(128),
+                 Fire1(in_channels=128, squeeze_channels=32,expand_channels=96),
+                 Fire1(in_channels=192, squeeze_channels=32,expand_channels=128),
+                 nn.MaxPool2d(kernel_size=3,stride=2),
+                 #nn.BatchNorm2d(256),
+                 Fire1(256, 48, 160),
+                 Fire1(320, 48, 160),
+                 #nn.BatchNorm2d(320),
+                 nn.Conv2d(in_channels=320,out_channels=128*2,kernel_size=1,stride=2),
+                 nn.LeakyReLU(),
+                 nn.Conv2d(in_channels=128*2,out_channels=32,kernel_size=1,stride=1),
+                 nn.LeakyReLU(),
+                 nn.Conv2d(in_channels=32,out_channels=16,kernel_size=1,stride=1),
+                 nn.LeakyReLU(),#just for testing
+                 #nn.Conv2d(in_channels=32,out_channels=16,kernel_size=1,stride=1),
+                 nn.Flatten(),
+                 #PrintShape(),
+                 nn.Linear(784, 1000),
+                 # nn.Linear(512*2, 512)
+                
+               
+                )        
+    def forward(self, x):
+        return self.net(x)    
+    
 class MyModelV4(torch.nn.Module):
     
     def __init__(self):
@@ -190,36 +199,35 @@ class MyModelV4(torch.nn.Module):
         self.net = torch.nn.Sequential(
                  nn.Conv2d(in_channels=1,out_channels=32,kernel_size=3,stride=2),
                  nn.MaxPool2d(kernel_size=3,stride=2),
-                 nn.LeakyReLU(),
+                 nn.ReLU(),
                  nn.BatchNorm2d(32),
-                 Fire(in_channels=32, squeeze_channels=16,expand_channels=32),
-                 Fire(in_channels=64, squeeze_channels=16,expand_channels=64),
+                 Fire1(in_channels=32, squeeze_channels=16,expand_channels=32),
+                 Fire1(in_channels=64, squeeze_channels=16,expand_channels=64),
                  nn.MaxPool2d(kernel_size=3,stride=2),
                  #nn.BatchNorm2d(128),
-                 Fire(in_channels=128, squeeze_channels=32,expand_channels=96),
-                 Fire(in_channels=192, squeeze_channels=32,expand_channels=128),
+                 Fire1(in_channels=128, squeeze_channels=32,expand_channels=96),
+                 Fire1(in_channels=192, squeeze_channels=32,expand_channels=128),
                  nn.MaxPool2d(kernel_size=3,stride=2),
                  #nn.BatchNorm2d(256),
-                 Fire(256, 48, 160),
-                 Fire(320, 48, 160),
-                 nn.MaxPool2d(kernel_size=3,stride=2),
+                 Fire1(256, 48, 160),
+                 Fire1(320, 48, 160),
                  #nn.BatchNorm2d(320),
                  nn.Conv2d(in_channels=320,out_channels=128*2,kernel_size=1,stride=2),
-                 nn.LeakyReLU(),
+                 nn.ReLU(),
                  nn.Conv2d(in_channels=128*2,out_channels=32,kernel_size=1,stride=1),
-                 nn.LeakyReLU(),
+                 nn.ReLU(),
                  nn.Conv2d(in_channels=32,out_channels=16,kernel_size=1,stride=1),
-                 nn.LeakyReLU(),
+                 nn.ReLU(),#just for testing
                  #nn.Conv2d(in_channels=32,out_channels=16,kernel_size=1,stride=1),
                  nn.Flatten(),
                  #PrintShape(),
-                 nn.Linear(144, 128),
-                 # nn.Linear(512*2, 512)              
+                 nn.Linear(784, 1000),
+                 # nn.Linear(512*2, 512)
+                
                
                 )        
     def forward(self, x):
-        return self.net(x)
-
+        return self.net(x)  
 
 
     

@@ -215,7 +215,9 @@ def automl_algo(X,y,train=True):
 #     data.to_csv('test.csv',index=False)
     save_path = 'agModels-predictClass' 
     if train:
-        predictor=TabularPredictor(label='Label',path=save_path,verbosity=0).fit(data,refit_full=True,presets='best_quality',time_limit=60*2,)
+        predictor=TabularPredictor(label='Label',path=save_path,verbosity=0).fit(data,refit_full=True,
+                                                                                # presets='best_quality',
+                                                                                 time_limit=60*2,)
     else:
         predictor = TabularPredictor.load(save_path) 
         leaderboard = predictor.leaderboard(data,silent=True)

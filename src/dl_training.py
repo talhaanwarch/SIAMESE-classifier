@@ -47,7 +47,7 @@ def augmentation1():
             ShiftScaleRotate(p=0.5),
             GaussNoise() ,
             #IAASuperpixels(),
-            Normalize(mean=[0.5,], std=[0.5,], p=1.0),
+            Normalize(mean=[0.2,], std=[0.2,], p=1.0),
             #CoarseDropout(p=0.5),
             Cutout(p=0.5),
             ToTensorV2(p=1.0),
@@ -63,7 +63,8 @@ def augmentation():
         transforms.Resize(size=(248,248)),
         transforms.RandomHorizontalFlip(1),
         transforms.RandomVerticalFlip(1),
-        transforms.CenterCrop(248),
+#         transforms.CenterCrop(248),
+        transforms.RandomRotation(degrees=10),
         transforms.ToTensor(),
         transforms.Normalize((0.2, ), (0.2, )),
                           ])
@@ -81,7 +82,7 @@ def rand_augmentation():
         transforms.RandomAffine(degrees=10),
         transforms.ToTensor(),
         transforms.RandomErasing(p=0.5), 
-        transforms.Normalize((0.5, ), (0.5, )),
+        transforms.Normalize((0.2, ), (0.2, )),
                           ])
     return aug.transforms.insert(0, RandAugment(4, 3))
 
@@ -91,7 +92,7 @@ def no_augmentation():
     aug=transforms.Compose([
         transforms.Resize(size=(224,224)),
         transforms.ToTensor(),
-        transforms.Normalize((0.5, ), (0.5, )),
+        transforms.Normalize((0.2, ), (0.2, )),
                           ])
     return aug
 

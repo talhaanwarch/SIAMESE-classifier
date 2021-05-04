@@ -39,7 +39,7 @@ class SqueezeNet(nn.Module):
     def __init__(
         self,
         version: str = '1_0',
-        num_classes: int = 128
+        num_classes: int = 1000
     ) -> None:
         super(SqueezeNet, self).__init__()
         self.num_classes = num_classes
