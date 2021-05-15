@@ -61,8 +61,8 @@ from torchvision import transforms
 def augmentation():
     aug=transforms.Compose([
         transforms.Resize(size=(248,248)),
-        transforms.RandomHorizontalFlip(1),
-        transforms.RandomVerticalFlip(1),
+        transforms.RandomHorizontalFlip(0.5),
+        transforms.RandomVerticalFlip(0.5),
 #         transforms.CenterCrop(248),
         transforms.RandomRotation(degrees=10),
         transforms.ToTensor(),
