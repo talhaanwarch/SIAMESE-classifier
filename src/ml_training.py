@@ -221,6 +221,7 @@ def automl_algo(X,y,train=True):
     else:
         predictor = TabularPredictor.load(save_path) 
         leaderboard = predictor.leaderboard(data,silent=True)
+        #print('autoML model ',leaderboard.model[0])
         test_pred = predictor.predict(data,model=leaderboard.model[0])
         return test_pred
 
