@@ -1,0 +1,13 @@
+tested on python 3.8.8 windows 11
+python -m venv venv
+activate venv
+pip install torch==1.7.0+cu110 torchvision==0.8.0+cu110 torchaudio==0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
+python -m pip install -U pip
+python -m pip install -U setuptools wheel
+pip install --pre autogluon
+pip install albumentations
+pip install -U jupyter
+
+
+
+currently, in the paper, i have not used autoML

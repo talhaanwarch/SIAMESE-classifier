@@ -12,7 +12,7 @@ import torch
 import numpy as np
 class SiameseNetworkDataset():
     
-    def __init__(self,df,image_D='2D',transform=None):
+    def __init__(self,df,image_D='gray',transform=None):
         self.df = df    
         self.transform=transform
         self.image_D=image_D
@@ -39,7 +39,7 @@ class SiameseNetworkDataset():
         img0 = Image.open(img0[0])
         img1 = Image.open(img1[0])
         
-        if self.image_D=='2D':
+        if self.image_D=='gray':
             img0=img0.convert("L")
             img1=img1.convert("L")
         #print(img0.dtype)

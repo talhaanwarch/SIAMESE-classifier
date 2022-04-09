@@ -14,8 +14,8 @@ from glob import glob
 from PIL import Image
 
 #augmentation data
-from dl_training import augmentation
-aug=augmentation()
+from dl_training import torch_augmentation
+aug=torch_augmentation()
 def get_features(df,model,dim='2D'):
     """
     
@@ -36,7 +36,7 @@ def get_features(df,model,dim='2D'):
     feature,label=[],[]
     for path in df:
         img = Image.open(path[0])
-        if dim=='2D':
+        if dim=='gray':
             img=img.convert("L")#convert to gray scale
         img=aug(img)#augmented
         img=img.unsqueeze(0) #add another dimension at 0
@@ -141,72 +141,9 @@ def knn_param_selection(X, y,pca=False):
     grid_search.best_params_
     return grid_search.best_estimator_ ,grid_search.best_score_
 
-#from catboost import CatBoostClassifier
-def cat_param_selection(X,y,pca=False):
-    #create a dictionary of all values we want to test
-    param_grid = { 'catboostclassifier__depth':list(np.arange(2,10,2)),
-                  'catboostclassifier__l2_leaf_reg':list(np.logspace(-20, -19, 3)),
-                  'catboostclassifier__learning_rate': [0.1,0.001,0.05],
-                  }
-    # decision tree model
-    cat_model=CatBoostClassifier(task_type="GPU", loss_function='MultiClass')
-    #use gridsearch to test all values
-    if pca:
-        grid_search = GridSearchCV(make_pipeline(StandardScaler(),pca,cat_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
-    else:
-        grid_search = GridSearchCV(make_pipeline(StandardScaler(),cat_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
-    #fit model to data
-    grid_search.fit(X, y)
-    #print(dtree_gscv.best_score_)
-    return grid_search.best_params_,grid_search.best_score_
 
-#import lightgbm as lgb
-def lgbm_param_selection(X,y,pca=False):
-    #create a dictionary of all values we want to test
-    param_grid = { 
-                    'lgbmclassifier__n_estimators':list(np.arange(50,500,50)),
-                  'lgbmclassifier__boosting_type':['gbdt', 'dart'],
-                  'lgbmclassifier__learning_rate': [0.1,0.001,0.05],
-                  'lgbmclassifier__random_state':np.arange(0,30,10)
-                  
-                  }
-    # decision tree model
-    lgbm_model=lgb.LGBMClassifier(objective='binary')
-    #use gridsearch to test all values
-    if pca:
-        grid_search = GridSearchCV(make_pipeline(StandardScaler(),pca,lgbm_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
-    else:
-        grid_search = GridSearchCV(make_pipeline(StandardScaler(),lgbm_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
-    #fit model to data
-    grid_search.fit(X, y)
-    #print(dtree_gscv.best_score_)
-    return grid_search.best_params_,grid_search.best_score_
 
-#lgbm_param_selection(feature,label)
 
-#import xgboost
-def xgb_param_selection(X,y,pca=None):
-    #create a dictionary of all values we want to test
-    param_grid = { 
-                    'xgbclassifier__n_estimators':list(np.arange(10,500,50)),
-                  'xgbclassifier__boosting_type':['dart'],
-                  'xgbclassifier__learning_rate': [0.1,0.001,0.05],
-                  'xgbclassifier__max_depth':np.arange(1,30,5),
-                  'xgbclassifier__random_state ':np.arange(0,30,10),
-                  
-                  }
-    # decision tree model
-    xgb_model=xgboost.XGBClassifier(objective='binary:logistic')
-    #use gridsearch to test all values
-    if pca:
-        grid_search = GridSearchCV(make_pipeline(StandardScaler(),pca,xgb_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
-    else:
-        grid_search = GridSearchCV(make_pipeline(StandardScaler(),xgb_model), param_grid, cv=5,n_jobs=-1,scoring='f1_macro')
-    #fit model to data
-    grid_search.fit(X, y)
-    #print(dtree_gscv.best_score_)
-    return grid_search.best_params_,grid_search.best_score_
-    
 from autogluon.tabular import TabularPredictor
 def automl_algo(X,y,train=True):
    

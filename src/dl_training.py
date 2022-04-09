@@ -11,9 +11,14 @@ import torchvision
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
-#pip install git+https://github.com/ildoonet/pytorch-randaugment
-from RandAugment.augmentations import Lighting, RandAugment
+
 from glob import glob    
+import random
+def seed_everything(seed=0):
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    random.seed(seed)
+
 
 #gpu or cpu
 device='cuda' if torch.cuda.is_available() else 'cpu'
@@ -37,13 +42,13 @@ from albumentations import *
 
 from albumentations.pytorch import ToTensorV2
 
-def augmentation1():
+def al_augmentation():
     """albumentations image augmentation"""
     return Compose([
             RandomResizedCrop(248, 248),
             #Transpose(p=0.5),
-            HorizontalFlip(p=1),
-            VerticalFlip(p=1),
+            HorizontalFlip(p=0.5),
+            VerticalFlip(p=0.5),
             ShiftScaleRotate(p=0.5),
             GaussNoise() ,
             #IAASuperpixels(),
@@ -58,7 +63,7 @@ def augmentation1():
 
 #image augmentation
 from torchvision import transforms
-def augmentation():
+def torch_augmentation():
     aug=transforms.Compose([
         transforms.Resize(size=(248,248)),
         transforms.RandomHorizontalFlip(0.5),
@@ -70,21 +75,6 @@ def augmentation():
                           ])
     return aug
 
-
-def rand_augmentation():
-    aug=transforms.Compose([
-        transforms.RandomResizedCrop(248, scale=(0.08, 1.0), interpolation=Image.BICUBIC),
-        transforms.RandomHorizontalFlip(1),
-        transforms.RandomVerticalFlip(1),
-        transforms.RandomRotation(degrees=30),
-        transforms.ColorJitter(brightness=0.4,contrast=0.4,saturation=0.4),
-        transforms.RandomPerspective(distortion_scale=0.1), 
-        transforms.RandomAffine(degrees=10),
-        transforms.ToTensor(),
-        transforms.RandomErasing(p=0.5), 
-        transforms.Normalize((0.2, ), (0.2, )),
-                          ])
-    return aug.transforms.insert(0, RandAugment(4, 3))
 
 
 
@@ -99,16 +89,16 @@ def no_augmentation():
 from torch.utils.data.dataloader import DataLoader
 from dataloader import SiameseNetworkDataset
 
-def load_data(df,batchsize=8,aug=1,image_D='2D'):
+def load_data(df,batchsize=8,aug=1,image_D='gray'):
     #call data loader
-    if aug==1:
-        data =SiameseNetworkDataset(df,image_D=image_D,transform=(1,augmentation()))
-    elif aug==2:
-        data =SiameseNetworkDataset(df,image_D=image_D,transform=(2,augmentation1()))
-    elif aug==0:
+    if aug==1:#torch
+        data =SiameseNetworkDataset(df,image_D=image_D,transform=(1,torch_augmentation()))
+    elif aug==2:#albumentation
+        data =SiameseNetworkDataset(df,image_D=image_D,transform=(2,al_augmentation()))
+    elif aug==0:#no augmentation
         data =SiameseNetworkDataset(df,image_D=image_D,transform=(1,no_augmentation()))
-    elif aug==3:
-        data =SiameseNetworkDataset(df,image_D=image_D,transform=(3,rand_augmentation()))
+#     elif aug==3:#random augmentation
+#         data =SiameseNetworkDataset(df,image_D=image_D,transform=(3,rand_augmentation()))
      
     #load images
     loader = DataLoader(data,shuffle=True,num_workers=0,batch_size=batchsize)

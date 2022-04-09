@@ -1,3 +1,7 @@
 *.pyc
 *.pkl
 *.params
+!diagram.ipynb
+!our_models_comparison.ipynb
+!our_models_comparison-augmented-nogridsearch.ipynb
+!our_models_comparison-nonaugmented-gridsearch.ipynb
