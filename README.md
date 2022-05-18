@@ -1,29 +1,9 @@
 # SIAMESE-classifier
 
 
-This is the main function
-```
-train_cv,clf_report=kfoldcv(model=densenet,epochs=epoch,batchsize=batchsize,data=data,lr=0.001,skip_tuning=False,aug=1,dim='3D')
-for clf in ['Decision Tree','SVM',"logistic regression",'K Nearest neighbors']:
-    print('------------------',clf,'----------------')
-    print(clf_report[0][clf][0])
-    
-print('--------------------------Accuracy Table-----------------------------------')
-clf_report[1]
-```
-kfoldcv got following parameters
-* dim='3D' or '2D' for 3D images and 2D iamges. 
-* skip_tuning=False, no grid search applied for hyper-parameter tuning, 
-* Augmentation
--- aug=1-> pytorch augmentation
--- aug=0-> no augmentation
--- aug=2-> albumentation augmentation
--- aug=3-> rand augmentation
+There are four techniques discussed in paper
 
-# Requirements
-Install pytorch (depends upon your cuda version)    
-pip install fastai   
-pip install --pre autogluon  
-pip install albumentations   
-pip install git+https://github.com/ildoonet/pytorch-randaugment  
-
+1. models comparison without augmented and gridsearch            [Notebook](https://github.com/talhaanwarch/SIAMESE-classifier/blob/main/notebooks/1.%20models_comparison_noaugmented_nogridsearch.ipynb)
+2. models comparison without augmented and with gridsearch [Notebook](https://github.com/talhaanwarch/SIAMESE-classifier/blob/main/notebooks/2.%20models_comparison_noaugmented_gridsearch.ipynb)
+3. models comparison with augmented and without gridsearch       [Notebook](https://github.com/talhaanwarch/SIAMESE-classifier/blob/main/notebooks/3.%20models_comparison_augmented_nogridsearch.ipynb)
+4. models comparison with augmented and gridsearch                [Notebook](https://github.com/talhaanwarch/SIAMESE-classifier/blob/main/notebooks/4.%20models_comparison_augmented_gridsearch.ipynb)
